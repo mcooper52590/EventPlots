@@ -19,18 +19,8 @@ T = 1
 N = 2048
 window = blackmanharris(N)
 
-datesNum = mdates.date2num(magDict['Epoch'])
-span = len(datesNum)
-magDict['Frequency'] = np.fft.fftfreq(N)
-magDict['FFT_Raw'] = np.zeros([len(magDict['Epoch']), magDict['Frequency'].shape[0], 4, 2])
-magDict['FFTEpoch'] = magDict['Epoch'][int(N/2):len(magDict['Epoch']) - int(N/2)]
-get_field_Aligned_Mag(magDict)
-for i in range(int(N/2), len(magDict['Epoch'])- int(N/2)):
-    for j in range(0,4):
-        magSlice = magDict['MagFA'][i - int(N/2):i + int(N/2), j]
-        holder = fft(window*magDict['MagFA'][i - int(N/2):i + int(N/2), j])
-        magDict['FFT_Raw'][i, :, j, 0] = np.real(holder) 
-        magDict['FFT_Raw'][i, :, j, 1] = np.imag(holder)
+
+
         
 
 
