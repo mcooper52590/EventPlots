@@ -10,14 +10,50 @@ Created on Sat Mar  2 10:44:53 2019
 #in the ShopFunctions.py file in this same directory.
 
 
-#Need to reconfigure to take a dict instead
+#Need to reconfigure to take a dict itead
 #Also, need to be able to specify field-aligned coordinate system, as well as which component to
 #get the FFT information for.
 #def get_FFT_Power_Info(mag_Mag, mag_Epoch): 
 
 T = 1
-N = 2048
+N = 256
 window = blackmanharris(N)
+fig, (ax1) = plt.subplots(1, 1, sharex=True, sharey=False, figsize=(17,12), dpi=166) 
+ax1T = ax1.twinx()
+ax2T = ax2.twinx()
+ax3T = ax3.twinx()
+fig.subplots_adjust(hspace=0.02)
+ax3.set_xlabel('Time Stamp')
+coordNumber = 1
+ax = ax1
+def get_Power_Spectra_Subplot(fig, ax, axT, magDict):
+FAUV_ToMagDict(magDict)
+get_field_Aligned_Mag(magDict)
+
+
+takeFFT_EMFISISMag(T, N, window, magDict)
+ax.text(.98, .8, 'Magnetic Field Power Spectra', horizontalalignment='right', transform=ax.transAxes, 
+  bbox=dict(facecolor='white', alpha=0.7))
+ax.set_facecolor('black')
+lowest = 3
+cutoff = 1200
+#power, frequency, datesNum, span, N = get_FFT_Power_Info(magDict['Magnitude'], magDict['Epoch'])
+#newN = len(frequency) - cutoff
+#newFreq = frequency[lowest:newN]
+y,x = np.meshgrid(magDict['Frequency'][3:], mdates.date2num(magDict['FFTEpoch']))
+newPower = np.abs(np.log(np.abs(magDict['FFT_Raw'][coordNumber][:,3:])**2))
+im = ax.pcolormesh(x, y, newPower, cmap='RdBu_r')
+#ax.set_ylim(np.max(newFreq), np.min(newFreq))
+#ax.set_xlim(datesNum[0], datesNum[span-1])
+#Hours = mdates.HourLocator()   
+#Minutes = mdates.MinuteLocator()
+#ax.set_yscale('log')
+#ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+#ax.xaxis.set_major_locator(Hours)
+#ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+#ax.set_xticks(datesNum[::int(np.ceil(len(magDict['Epoch'])/15))])
+#fig.colorbar(im, ax=ax, fraction = .05, pad = .07)   
+#ax.set_ylabel('Period [sec]', labelpad=5)
 
 
 

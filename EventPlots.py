@@ -20,39 +20,6 @@ import matplotlib.ticker as ticker
 #==============================================================================
 def format_func(value, tick_number):
   return '{0:.4g}'.format(1/value)
-   
-def get_FFT_Power_Info(mag_Mag, mag_Epoch): 
-  datesNum = mdates.date2num(mag_Epoch)
-  span = len(datesNum)
-  power = []   
-  # Number of sample points(must be even!!!)
-  N = 4096
-  # sample spacing
-  T = 1
-  
-  frequency = np.linspace(0.0, 1.0/(2.0*T), N/2)
-  for i in range(0,len(mag_Mag)):
-      if i > int(N/2) and len(mag_Mag) - i > int(N/2):
-          magSlice = mag_Mag[i-int(N/2):i+int(N/2)]
-      if i < int(N/2):
-          firstSlice = mag_Mag[0:int(N/2)-i]
-          magSlice = np.append(firstSlice, mag_Mag[0:i+int(N/2)])
-      if len(mag_Mag) - i < int(N/2):
-          firstSlice = mag_Mag[i-int(N/2):]
-          magSlice = np.append(firstSlice, mag_Mag[len(mag_Mag) + 
-                              (len(mag_Mag)-(int(N/2)+i)):])
-          secondSlice = datesNum[i-int(N/2):]
-          timeSlice = np.append(secondSlice, datesNum[len(mag_Mag) + 
-                              (len(mag_Mag)-(int(N/2)+i)):])
-      
-#      fitMag = get_Fit_Values(timeSlice, magSlice)
-      y = np.array(magSlice) - np.mean(magSlice)
-      wbh = blackmanharris(N)
-      ywbhf = fft(y*wbh)
-      power.append(np.abs(ywbhf))
-      
-  power = np.array(power)
-  return power, frequency, datesNum, span, N
 
 def get_Power_Spectra_Subplot(fig, ax, axT, magDict, betaDict):
     ax.text(.98, .8, 'Magnetic Field Power Spectra', horizontalalignment='right', transform=ax.transAxes, 
