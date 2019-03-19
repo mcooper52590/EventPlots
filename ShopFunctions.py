@@ -23,6 +23,14 @@ import matplotlib.dates as mdates
 import matplotlib.colors as colors
 import matplotlib.ticker as ticker
 
+def format_func(value, tick_number):
+  return '{0:.4g}'.format(1/value)
+
+def fmt(x, pos):
+    a, b = '{:.0e}'.format(x).split('e')
+    b = int(b)
+    return r'${}*10^{{{}}}$'.format(a, b)
+
 def get_Mag_Pressure(magnitude):
   mu = (4 * np.pi) * 1e-7
   magVals = magnitude*1e-9
@@ -60,32 +68,107 @@ def get_field_Aligned_Mag(magDict):
 #magnitude.  It can generate a rather large dict if given a long enough span, so be careful.
 def takeFFT_EMFISISMag(T, N, window, magDict):
     magDict['Frequency'] = np.fft.fftfreq(N)
-    magDict['FFT_Raw'] = np.zeros([len(magDict['Epoch']), magDict['Frequency'].shape[0], 4, 2])
     magDict['FFTEpoch'] = magDict['Epoch'][int(N/2):len(magDict['Epoch']) - int(N/2)]
+    magDict['FFT_Raw'] = np.zeros([4, len(magDict['FFTEpoch']), magDict['Frequency'].shape[0]], dtype='complex64')
     get_field_Aligned_Mag(magDict)
-    for i in range(int(N/2), len(magDict['Epoch'])- int(N/2)):
+    hWin = int(N/2)
+    for i in range(hWin, len(magDict['Epoch']) - hWin):
         for j in range(0,4):
-            holder = fft(window*magDict['MagFA'][i - int(N/2):i + int(N/2), j], T)
-            magDict['FFT_Raw'][i, :, j, 0] = np.real(holder) 
-            magDict['FFT_Raw'][i, :, j, 1] = np.imag(holder)
-            
-def takeFFT_EMFISISMag(T, N, window, magDict):
-    magDict['Frequency'] = np.fft.fftfreq(N)
-    magDict['FFT_Raw'] = np.zeros([len(magDict['Epoch']), magDict['Frequency'].shape[0], 4, 2])
-    magDict['FFTEpoch'] = magDict['Epoch'][int(N/2):len(magDict['Epoch']) - int(N/2)]
+            magDict['FFT_Raw'][j, i - hWin] = np.fft.fft(window*magDict['MagFA'][i - hWin:i + hWin, j])
+
+def get_Power_Spectra_Subplot(fig, ax, magDict, N, T, window, coord='FieldAligned'):
+    #Function which takes a matplotlib fig and ax, along with the magDict from either the database at NJIT for EMFISIS
+    #on Dgar or from a EMFISIS CDF file, and plots the power spectra for the dict on the axes provided.
+        #coord = ('FieldAligned', 'Azimuthal', 'Radial')
+        #N = number of samples to include in the FFT
+        #T is the sampling period
+    FAUV_ToMagDict(magDict)
     get_field_Aligned_Mag(magDict)
-    for i in range(int(N/2), len(magDict['Epoch'])- int(N/2)):
-        for j in range(0,4):
-            magSlice = magDict['MagFA'][i - int(N/2):i + int(N/2), j]
-            holder = fft(window*magDict['MagFA'][i - int(N/2):i + int(N/2), j], T)
-            magDict['FFT_Raw'][i, :, j, 0] = np.real(holder) 
-            magDict['FFT_Raw'][i, :, j, 1] = np.imag(holder)
-            
-magCdf = cdf.CDF(os.getcwd() + 'rbsp-a_magnetometer_1sec-sm_emfisis-L3_20180823_v1.6.1.cdf')
-magDict = dict(magCdf.copy())
-magCdf.close()
-FAUV_ToMagDict(magDict)
-get_field_Aligned_Mag(magDict)
+    takeFFT_EMFISISMag(T, N, window, magDict)
+    if coord == 'FieldAligned':
+        coordNumber = 0
+    elif coord == 'Azimuthal':
+        coordNumber = 1
+    elif coord == 'Radial':
+        coordNumber = 2
+    else:
+        raise ValueError('Not a possible coordinate.') 
+    ax.text(.98, .8, 'Magnetic Field Power Spectra', horizontalalignment='right', transform=ax.transAxes, 
+      bbox=dict(facecolor='white', alpha=0.7))
+    ax.set_facecolor('black')
+    newFreq = magDict['Frequency'][3:int(len(magDict['Frequency'])/2)]
+    y,x = np.meshgrid(newFreq, mdates.date2num(magDict['FFTEpoch']))
+    newPower = (1/T)*np.log(np.abs(magDict['FFT_Raw'][coordNumber][:,3:int(len(magDict['Frequency'])/2)])**2)
+    im = ax.pcolormesh(x, y, newPower, cmap='RdBu_r')
+    ax.set_ylim(np.max(newFreq), np.min(newFreq))
+#    Hours = mdates.HourLocator()   
+#    Minutes = mdates.MinuteLocator()
+    ax.set_yscale('log')
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+#    ax.xaxis.set_major_locator(Hours)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+#    ax.set_xticks(datesNum[::int(np.ceil(len(magDict['Epoch'])/15))])
+    fig.colorbar(im, ax=ax, fraction = .05, pad = .07)   
+  
+def get_Beta_LinePlot(ax, betaDict):
+    ax.plot(betaDict['Epoch'], betaDict['Total'], color='black', label='Beta')
+
+def get_Particle_Heatmap_SubPlot_EnergyBinned(fig, ax, tofDict):
+    #Function which takes a matplotlib fig and ax, along with the tofDict from either the database at NJIT for EMFISIS
+    enBin = np.sum(tofDict['FPDU'], 2)
+    enBin[np.where(enBin == 0)] = .01
+    ax.text(.98, .8, 'Particle Count By Energy Channel', horizontalalignment='right', transform=ax.transAxes, 
+            bbox=dict(facecolor='white', alpha=0.7))
+    ax.set_facecolor('black')
+    energy = np.linspace(10, 1000, 14)
+    x,y = np.meshgrid(tofDict['Epoch'], energy)
+    im = ax.pcolormesh(x, y, np.log(enBin.transpose()), cmap='jet', vmax=4*(np.log(enBin)).std())
+    span = np.ceil(int(tofDict['Epoch'][len(tofDict['Epoch'])-1].timestamp() - tofDict['Epoch'][0].timestamp())/11)
+    #Hours = mdates.HourLocator()   
+    #Minutes = mdates.MinuteLocator()
+    #ax.xaxis.set_major_locator(Minutes)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+    ax.set_xticks(tofDict['Epoch'][::int(span/15)])
+    fig.colorbar(im, ax=ax, fraction = .05, pad = .07)
+    ax.set_yscale('linear')
+
+def get_ParticleDensity_LinePlot(ax, tofDict):
+    ax.plot(tofDict['Epoch'], tofDict['FPDU_Density'], color='maroon')  
+
+def get_Particle_Heatmap_AngleBinned(fig, ax, tofDict):
+    angleBin = np.sum(tofDict['FPDU'], 1)
+    ax.text(.98, .8, 'Particle Count By Pitch Angle', horizontalalignment='right',
+            transform=ax.transAxes, bbox=dict(facecolor='white', alpha=0.7))
+    ax.set_facecolor('black')
+    angle = tofDict['PA_Midpoint'][0,:]
+    TOFxE_Epoch = tofDict['Epoch']
+    x,y = np.meshgrid(tofDict['Epoch'], angle)
+    im = ax.pcolormesh(x, y, angleBin.transpose(), cmap='jet', vmin=0, vmax=4*angleBin.std())
+    span = np.ceil(int(tofDict['Epoch'][len(tofDict['Epoch'])-1].timestamp() - tofDict['Epoch'][0].timestamp())/11)
+    Hours = mdates.HourLocator()   
+    ax.xaxis.set_major_locator(Hours)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+    ax.set_xticks(tofDict['Epoch'][::int(span/15)])
+    ax.set_yscale('linear')
+    fig.colorbar(im, ax=ax, fraction = .05, pad = .07, format=ticker.FuncFormatter(fmt))
+
+def get_Kappa_Lineplot(ax, kappaDict):
+    ax.plot(kappaDict['Epoch'], kappaDict['Kappa'], color='blue', label='Kappa')  
+
+
+      
+#date = dt.datetime(2013,5,25,12,0,0)
+##2013 05/01, 1230:16, 16.5 minute duration
+#strtDate = date - dt.timedelta(minutes=360)
+#stpDate = date + dt.timedelta(minutes=360) 
+##==============================================================================
+#magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
+#FAUV_ToMagDict(magDict)
+#get_field_Aligned_Mag(magDict)
+#T = 1
+#N = 4096
+#window = blackmanharris(N)
+#takeFFT_EMFISISMag(T, N, window, magDict)
 
 #dates = [dt.datetime(2013,5,1,12,30,16), dt.datetime(2013,5,1,12,50,16),.5]
 ##2013 05/01, 1230:16, 16.5 minute duration
