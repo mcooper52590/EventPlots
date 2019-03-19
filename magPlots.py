@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Mar  2 10:44:53 2019
+'''
+Created on Tue Mar 19 10:55:07 2019
 
-@author: mattcooper
-"""
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#This is the Shop Floor.  Place codes here to work on/test them.  Place function calls/libraries 
-#in the ShopFunctions.py file in this same directory.
-
+@author: matthew
+'''
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import datetime as dt
@@ -18,14 +14,14 @@ import EventPlotFunctions as eve
 from scipy.signal import blackmanharris
 import numpy as np
 
-#date = dt.datetime(2013,5,1,12,0,0)
-#strtDate = date - dt.timedelta(minutes=360)
-#stpDate = date + dt.timedelta(minutes=360) 
-#magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
-#betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
-#kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
+date = dt.datetime(2013,5,1,12,0,0)
+strtDate = date - dt.timedelta(minutes=360)
+stpDate = date + dt.timedelta(minutes=360) 
+magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
+betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
+kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
   
-mag_AverageRemoved(600, magDict)
+eve.mag_AverageRemoved(600, magDict)
    
 gs = gridspec.GridSpec(3, 4)
 
