@@ -18,37 +18,40 @@ import EventPlotFunctions as eve
 from scipy.signal import blackmanharris
 import numpy as np
 
-#date = dt.datetime(2013,5,1,12,0,0)
-#strtDate = date - dt.timedelta(minutes=360)
-#stpDate = date + dt.timedelta(minutes=360) 
-#magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
-#betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
-#kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
-  
+date = dt.datetime(2013,5,1,12,0,0)
+strtDate = date - dt.timedelta(minutes=135)
+stpDate = date + dt.timedelta(minutes=180) 
+magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
+betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
+kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
+
+FAUV_ToMagDict(magDict)
+get_field_Aligned_Mag(magDict)
+takeFFT_EMFISISMag(1, 2048, blackmanharris(2048), magDict)
 mag_AverageRemoved(600, magDict)
    
-gs = gridspec.GridSpec(3, 4)
+gs = gridspec.GridSpec(2, 4)
 
-ax1 = plt.subplot(gs[0:2, 0:2])
-ax2 = plt.subplot(gs[0:2, 2:4])
-ax3 = plt.subplot(gs[2, :])
-ax3T = ax3.twinx()
+ax1 = plt.subplot(gs[0:1, 0:1])
+ax2 = plt.subplot(gs[1:2, 0:1])
+ax3 = plt.subplot(gs[0:1, 1:])
+ax4 = plt.subplot(gs[1:2, 1:])
 
 eve.get_Position_Plot_For_Span(ax1, ax2, strtDate, stpDate)
 
 eve.FAUV_ToMagDict(magDict)
 eve.takeFFT_EMFISISMag(1, 2048, blackmanharris(2048), magDict)
 
-l1 = ax3.plot(magDict['Epoch_Avg'], magDict['MagFA_NoBack'][:,0], color = 'red', label='Field-Aligned Mag')
+ax3.plot(magDict['Epoch_Avg'], magDict['MagFA_NoBack'][:,0], color = 'red', label='Field-Aligned Mag')
 ax3.set_ylim(-20,20)
+ax3.legend()
 #ax1.set_facecolor('black')
 
-ax3T.set_ylim(-2,2)
 
-l2 = ax3T.plot(betaDict['Epoch'], betaDict['Total'], color='black', label='Beta')
-l3 = ax3T.plot(kappaDict['Epoch'], kappaDict['Kappa'], color='blue', label='Kappa') 
-#gs.update(hspace=.5, wspace=.15)
+ax4.plot(betaDict['Epoch'], betaDict['Total'], color='black', label='Beta')
+ax4.plot(kappaDict['Epoch'], kappaDict['Kappa'], color='blue', label='Kappa') 
+ax4.set_ylim(-2,2)
+ax4.legend()
 
-lns = l1+l2+l3
-labs = [l.get_label() for l in lns]
-ax3.legend(lns, labs, loc=0, prop={'size': 6})
+gs.update(hspace=.25, wspace=.15)
+
