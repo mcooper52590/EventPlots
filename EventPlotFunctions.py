@@ -238,12 +238,35 @@ def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
     ax2.set_xlabel('X-Axis SM Coordinates')
     ax2.set_ylabel('Z-Axis SM Coordinates')
     
-def hpf(data, minfreq=.01, samplePeriod=1, initial=0):
-    alpha = 1/(1 + 2*np.pi*minfreq*samplePeriod)
+def hpf(data, fmin=.01, T=1, init=0):
+    '''
+    A simple high pass filter function.
+        data = the numpy array containing the data to filter
+        fmin = lower cutoff frequency
+        T = sample period
+        init = inital boundary condition
+    ''' 
+    alpha = 1/(1 + 2*np.pi*fmin*T)
     filtData = np.zeros([data.shape[0]])
     filtData[0] = 0 
     for i in range(1, filtData.shape[0]):
         filtData[i] = alpha * filtData[i-1] + alpha*(data[i] - data[i-1])
+    return filtData
+
+def lpf(data, fmax=.005, T=1, initial=0):
+    '''
+    A simple high pass filter function.
+        data = the numpy array containing the data to filter
+        fmax = upper cutoff frequency
+        T = sample period
+        init = inital boundary condition
+    ''' 
+    alpha = (2*np.pi*fmax*T)/(1 + 2*np.pi*fmax*T)
+    filtData = np.zeros([data.shape[0]])
+    filtData[0] = 0
+    alpha*(initial + data[1] - data[0])  
+    for i in range(1, filtData.shape[0]):
+        filtData[i] = alpha*(data[i] - filtData[i-1]) + filtData[i-1]
     return filtData
 
 def mag_AverageRemoved(N, magDict):
@@ -255,5 +278,3 @@ def mag_AverageRemoved(N, magDict):
         for j in range(0,3):
             magDict['MagFA_Avg'][i, j] = np.mean(magDict['MagFA'][i:i + N, j]) 
             magDict['MagFA_NoBack'][i, j] = magDict['MagFA'][i,j] - magDict['MagFA_Avg'][i,j]
-    for k in range(0,3):
-        magDict['MagFA_NoBack'][:,k] = hpf(magDict['MagFA_NoBack'][:,k])
