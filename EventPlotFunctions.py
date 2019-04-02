@@ -20,10 +20,14 @@ import os
 def freq_to_Period(value, tick_number):
     return '{0:.4g}'.format(1/value)
 
+#def fmt(x, pos):
+#    a, b = '{:.1e}'.format(x).split('e')
+#    b = int(b)
+#    return r'${}*10^{{{}}}$'.format(a, b)
+    
 def fmt(x, pos):
-    a, b = '{:.0e}'.format(x).split('e')
-    b = int(b)
-    return r'${}*10^{{{}}}$'.format(a, b)
+    y = x/1e9
+    return y
 
 def FAUV_ToMagDict(magDict):
     '''
@@ -41,7 +45,6 @@ def FAUV_ToMagDict(magDict):
         magDict['FAUV'][i,2,:] = (np.cross(magDict['FAUV'][i,0,:], magDict['FAUV'][i,1,:])/
                                   np.linalg.norm(np.cross(magDict['FAUV'][i,0,:], magDict['FAUV'][i,1,:])))
 
-#
 def get_field_Aligned_Mag(magDict):
     '''
     Takes a dict from the EMFISIS data and uses FAUV_ToMagDict, as well as adding the field values in the field-aligned 
@@ -95,17 +98,13 @@ def get_Power_Spectra_Subplot(fig, ax, magDict, N, T, window, coord='FieldAligne
       bbox=dict(facecolor='white', alpha=0.7))
     ax.set_facecolor('black')
     newFreq = magDict['Frequency'][3:int(len(magDict['Frequency'])/2)]
-    y,x = np.meshgrid(newFreq, mdates.date2num(magDict['FFTEpoch']))
+    EpBin = np.linspace(0, 1, len(magDict['FFTEpoch']))
+    y,x = np.meshgrid(newFreq, EpBin)
     newPower = (1/T)*np.log(np.abs(magDict['FFT_Raw'][coordNumber][:,3:int(len(magDict['Frequency'])/2)])**2)
     im = ax.pcolormesh(x, y, newPower, cmap='RdBu_r')
     ax.set_ylim(np.max(newFreq), np.min(newFreq))
-#    Hours = mdates.HourLocator()   
-#    Minutes = mdates.MinuteLocator()
     ax.set_yscale('log')
     ax.yaxis.set_major_formatter(plt.FuncFormatter(freq_to_Period))
-#    ax.xaxis.set_major_locator(Hours)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-#    ax.set_xticks(datesNum[::int(np.ceil(len(magDict['Epoch'])/15))])
     fig.colorbar(im, ax=ax, fraction = .05, pad = .07)   
   
 def get_Beta_LinePlot(ax, betaDict):
@@ -123,20 +122,16 @@ def get_Particle_Heatmap_SubPlot_EnergyBinned(fig, ax, tofDict):
             bbox=dict(facecolor='white', alpha=0.7))
     ax.set_facecolor('black')
     energy = np.linspace(10, 1000, 14)
-    x,y = np.meshgrid(tofDict['Epoch'], energy)
+    tofEpBin = np.linspace(0, 1, len(tofDict['Epoch']))
+    x,y = np.meshgrid(tofEpBin, energy)
     im = ax.pcolormesh(x, y, np.log(enBin.transpose()), cmap='jet', vmax=4*(np.log(enBin)).std())
-    span = np.ceil(int(tofDict['Epoch'][len(tofDict['Epoch'])-1].timestamp() - tofDict['Epoch'][0].timestamp())/11)
-    #Hours = mdates.HourLocator()   
-    #Minutes = mdates.MinuteLocator()
-    #ax.xaxis.set_major_locator(Minutes)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-    ax.set_xticks(tofDict['Epoch'][::int(span/15)])
     fig.colorbar(im, ax=ax, fraction = .05, pad = .07)
     ax.set_yscale('linear')
 
 def get_ParticleDensity_LinePlot(ax, tofDict):
     #Plots particle densities from a tofDict provided by Dgar or a TOF cdf
-    ax.plot(tofDict['Epoch'], tofDict['FPDU_Density'], color='maroon')  
+    tofEpBin = np.linspace(0, 1, len(tofDict['Epoch']))
+    ax.plot(tofEpBin, tofDict['FPDU_Density'], color='maroon')  
 
 def get_Particle_Heatmap_AngleBinned(fig, ax, tofDict):
     '''
@@ -148,18 +143,15 @@ def get_Particle_Heatmap_AngleBinned(fig, ax, tofDict):
             transform=ax.transAxes, bbox=dict(facecolor='white', alpha=0.7))
     ax.set_facecolor('black')
     angle = tofDict['PA_Midpoint'][0,:]
-    x,y = np.meshgrid(tofDict['Epoch'], angle)
+    tofEpBin = np.linspace(0, 1, len(tofDict['Epoch']))
+    x,y = np.meshgrid(tofEpBin, angle)
     im = ax.pcolormesh(x, y, angleBin.transpose(), cmap='jet', vmin=0, vmax=4*angleBin.std())
-    span = np.ceil(int(tofDict['Epoch'][len(tofDict['Epoch'])-1].timestamp() - tofDict['Epoch'][0].timestamp())/11)
-    Hours = mdates.HourLocator()   
-    ax.xaxis.set_major_locator(Hours)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-    ax.set_xticks(tofDict['Epoch'][::int(span/15)])
     ax.set_yscale('linear')
     fig.colorbar(im, ax=ax, fraction = .05, pad = .07, format=ticker.FuncFormatter(fmt))
 
 def get_Kappa_Lineplot(ax, kappaDict):
-    ax.plot(kappaDict['Epoch'], kappaDict['Kappa'], color='blue', label='Kappa') 
+    tofEpBin = np.linspace(0, 1, len(kappaDict['Epoch']))
+    ax.plot(tofEpBin, kappaDict['Kappa'], color='blue', label='Kappa') 
     
 def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
     magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDt, endDt)

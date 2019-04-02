@@ -15,12 +15,14 @@ from scipy.signal import blackmanharris
 import numpy as np
 
 date = dt.datetime(2013,5,1,12,0,0)
-strtDate = date - dt.timedelta(minutes=360)
-stpDate = date + dt.timedelta(minutes=360) 
+strtDate = date - dt.timedelta(minutes=180)
+stpDate = date + dt.timedelta(minutes=180) 
 magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
 betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
 kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
-  
+
+eve.FAUV_ToMagDict(magDict)
+eve.get_field_Aligned_Mag(magDict)
 eve.mag_AverageRemoved(600, magDict)
    
 gs = gridspec.GridSpec(3, 4)
@@ -32,7 +34,7 @@ ax3T = ax3.twinx()
 
 eve.get_Position_Plot_For_Span(ax1, ax2, strtDate, stpDate)
 
-eve.FAUV_ToMagDict(magDict)
+
 eve.takeFFT_EMFISISMag(1, 2048, blackmanharris(2048), magDict)
 
 l1 = ax3.plot(magDict['Epoch_Avg'], magDict['MagFA_NoBack'][:,0], color = 'red', label='Field-Aligned Mag')
