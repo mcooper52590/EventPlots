@@ -14,7 +14,7 @@ import EventPlotFunctions as eve
 from scipy.signal import blackmanharris
 import numpy as np
 
-date = dt.datetime(2013,5,1,12,0,0)
+date = dt.datetime(2013,3,1,0,0,0)
 strtDate = date - dt.timedelta(minutes=180)
 stpDate = date + dt.timedelta(minutes=180) 
 magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)

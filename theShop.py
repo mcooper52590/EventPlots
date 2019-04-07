@@ -19,7 +19,7 @@ from scipy.signal import blackmanharris
 import numpy as np
 
 diff = 180
-date = dt.datetime(2013,5,1,12,0,0)
+date = dt.datetime(2013,8,23,6,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 
@@ -58,7 +58,7 @@ ax3.legend()
 epBin2 = np.linspace(0,1, len(betaDict['Epoch']))
 ax4.plot(epBin2, betaDict['Total'], color='green', label='Beta')
 ax4.plot(epBin2, kappaDict['Kappa'], color='blue', label='Kappa') 
-ax4.set_ylim(-2,2)
+ax4.set_ylim(-2,3)
 ax4.legend()
 
 gs.update(hspace=.25, wspace=.15)

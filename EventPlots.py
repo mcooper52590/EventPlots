@@ -16,8 +16,8 @@ import EventPlotFunctions as eve
 ========================================================================================================================
 Code section which retrieves a dictionary from the mySQL database on Dgar at NJIT
 '''
-diff = 180
-date = dt.datetime(2013,5,1,12,0,0)
+diff = 90
+date = dt.datetime(2013,8,23,6,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 #=======================================================================================================================
