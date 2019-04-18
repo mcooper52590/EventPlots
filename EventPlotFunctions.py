@@ -66,7 +66,7 @@ def takeFFT_EMFISISMag(T, N, window, magDict):
     This calculates FFTs for the three field aligned coordinate directions, as well as the overall 
     magnitude.  It can generate a rather large dict if given a long enough span, so be careful.
     '''
-    magDict['Frequency'] = np.fft.fftfreq(N)
+    magDict['Frequency'] = np.fft.fftfreq(N, d=T)
     magDict['FFTEpoch'] = magDict['Epoch'][int(N/2):len(magDict['Epoch']) - int(N/2)]
     magDict['FFT_Raw'] = np.zeros([4, len(magDict['FFTEpoch']), magDict['Frequency'].shape[0]], dtype='complex64')
     get_field_Aligned_Mag(magDict)

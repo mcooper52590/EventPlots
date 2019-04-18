@@ -18,8 +18,8 @@ import EventPlotFunctions as eve
 from scipy.signal import blackmanharris
 import numpy as np
 
-diff = 180
-date = dt.datetime(2013,8,23,6,0,0)
+diff = 240
+date = dt.datetime(2013,5,1,21,00,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 
@@ -40,8 +40,10 @@ for k in range(0,3):
     magDict['MagFA_NoBack'][:,k] = eve.lpf(magDict['MagFA_NoBack'][:,k]) 
     magDict['MagFA_NoBack'][:,k] = eve.hpf(magDict['MagFA_NoBack'][:,k])
     
-    
-gs = gridspec.GridSpec(2, 4)
+fig = plt.figure(constrained_layout=True, dpi=150)
+widths = [1, 3]
+heights = [1, 1]
+gs = gridspec.GridSpec(ncols=2, nrows=2, width_ratios=widths,height_ratios=heights)
 
 ax1 = plt.subplot(gs[0:1, 0:1])
 ax2 = plt.subplot(gs[1:2, 0:1])
@@ -63,12 +65,13 @@ ax4.legend()
 
 gs.update(hspace=.25, wspace=.15)
 
+tickNum = 16
 ticks = []
 locs = []
-ticksep = 2*diff/18
-for i in range(0, 19):
+ticksep = 2*diff/tickNum
+for i in range(0, tickNum+1):
     ticks.append((strtDate + dt.timedelta(minutes = i*ticksep)).strftime('%H:%M'))
-    locs.append(i*(1/18))
+    locs.append(i*(1/tickNum))
 
 ax3.set_xticks(locs)
 ax3.set_xticklabels(ticks, rotation=45)

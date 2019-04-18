@@ -16,8 +16,8 @@ import EventPlotFunctions as eve
 ========================================================================================================================
 Code section which retrieves a dictionary from the mySQL database on Dgar at NJIT
 '''
-diff = 90
-date = dt.datetime(2013,8,23,6,0,0)
+diff = 240
+date = dt.datetime(2013,5,1,21,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 #=======================================================================================================================
@@ -52,10 +52,10 @@ eve.get_Particle_Heatmap_AngleBinned(fig, ax3, tofDict)
 
 ticks = []
 locs = []
-ticksep = 2*diff/18
-for i in range(0, 19):
+ticksep = 2*diff/16
+for i in range(0, 17):
     ticks.append((strtDate + dt.timedelta(minutes = i*ticksep)).strftime('%H:%M'))
-    locs.append(i*(1/18))
+    locs.append(i*(1/16))
 
 ax3.set_xticks(locs)
 ax3.set_xticklabels(ticks, rotation=45)
