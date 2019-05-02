@@ -29,6 +29,10 @@ def fmt(x, pos):
     y = x/1e9
     return y
 
+def get_Mag_Press(magnitude):
+  mu = (4 * np.pi) * 1e-7
+  return ((magnitude*1e-9)**2)/(2*mu)
+
 def FAUV_ToMagDict(magDict):
     '''
     Takes a dict from the EMFISIS data and adds the Field Aligned Unit Vector (FAUV)
@@ -265,8 +269,18 @@ def mag_AverageRemoved(N, magDict):
     hw = int(N/2)
     magDict['Epoch_Avg'] = magDict['Epoch'][hw:magDict['Epoch'].shape[0] - hw] 
     magDict['MagFA_Avg'] = np.zeros([magDict['Epoch_Avg'].shape[0], 4])
+    magDict['MagPressFA_Avg'] = np.zeros([magDict['Epoch_Avg'].shape[0], 4])
     magDict['MagFA_NoBack'] = np.zeros([magDict['Epoch_Avg'].shape[0], 4])
-    for i in range(0, magDict['Epoch'].shape[0] - N):
+    magDict['MagPressFA'] = get_Mag_Press(magDict['MagFA'])
+    magDict['MagPressFA_NoBack'] = np.zeros([magDict['Epoch_Avg'].shape[0], 4])
+    for i in range(hw, magDict['Epoch_Avg'].shape[0] - hw):
         for j in range(0,3):
-            magDict['MagFA_Avg'][i, j] = np.mean(magDict['MagFA'][i:i + N, j]) 
+            magDict['MagFA_Avg'][i, j] = np.mean(magDict['MagFA'][i-hw:i+hw, j]) 
+            magDict['MagPressFA_Avg'][i, j] = np.mean(magDict['MagPressFA'][i-hw:i+hw, j]) 
             magDict['MagFA_NoBack'][i, j] = magDict['MagFA'][i,j] - magDict['MagFA_Avg'][i,j]
+            magDict['MagPressFA_NoBack'][i, j] = magDict['MagPressFA'][i,j] - magDict['MagPressFA_Avg'][i,j]
+            
+            
+            
+            
+            
