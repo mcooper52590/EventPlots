@@ -28,7 +28,7 @@ def get_Interp_Mag_Press(pressDict, magDict):
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 diff = 240
-date = dt.datetime(2013,5,1,12,00,0)
+date = dt.datetime(2013,5,1,12,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 

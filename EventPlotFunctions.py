@@ -157,7 +157,7 @@ def get_Kappa_Lineplot(ax, kappaDict):
     tofEpBin = np.linspace(0, 1, len(kappaDict['Epoch']))
     ax.plot(tofEpBin, kappaDict['Kappa'], color='blue', label='Kappa') 
     
-def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
+def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt, magDict, SC):
     magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDt, endDt)
     coords = magDict['coordinates']/6371.5
     
@@ -166,7 +166,7 @@ def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
     ax1.set_ylim(ws,-ws)
     img = plt.imread(os.getcwd() + "/Background-XY-GREY.jpeg")
     ax1.imshow(img,zorder=0, extent=[6, -6, 6, -6])
-    ax1.scatter(coords[:,0], coords[:,1], marker='^', c='tomato', s=.1, label='RBSP-A')
+    ax1.scatter(coords[:,0], coords[:,1], marker='^', c='tomato', s=.1, label='RBSP-' + SC)
     ax1.set_facecolor('.82')
     
     for i in range(len(coords[:,0])):
@@ -181,7 +181,7 @@ def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
     ax2.set_ylim(-ws,ws)
     img = plt.imread(os.getcwd() + "/Background-XZ-GREY.jpeg")
     ax2.imshow(img,zorder=0, extent=[6, -6, -6, 6])
-    ax2.scatter(coords[:,0], coords[:,2], marker='^', c='tomato', s=.1, label='RBSP-A')
+    ax2.scatter(coords[:,0], coords[:,2], marker='^', c='tomato', s=.1, label='RBSP-' + SC)
     ax2.set_facecolor('.82')
     
     for i in range(len(coords[:,0])):
@@ -192,33 +192,33 @@ def get_Position_Plot_For_Span(ax1, ax2, strtDt, endDt):
                       lw=0, length_includes_head=True, head_width=.2, 
                       color='darkred')
     
-    magDict = rip.get_CDF_Dict('Mag_1Sec_B', strtDt, endDt)
-    coords = magDict['coordinates']/6371.5
-    
-    ws = 6
-    ax1.set_xlim(ws,-ws)
-    ax1.set_ylim(ws,-ws)
-    ax1.scatter(coords[:,0], coords[:,1], marker='^', c='green', s=.1, label='RBSP-B')
-    
-    for i in range(len(coords[:,0])):
-        if i % 10000 ==0 and i-len(coords[:,0]) < 200:
-            diffX = coords[i+1, 0] - coords[i,0]
-            diffY = coords[i+1, 1] - coords[i,1]
-            ax1.arrow(coords[i,0], coords[i,1], diffX, diffY, shape='full', 
-                      lw=0, length_includes_head=True, head_width=.2, 
-                      color='darkgreen')
-    
-    ax2.set_xlim(ws,-ws)
-    ax2.set_ylim(-ws,ws)
-    ax2.scatter(coords[:,0], coords[:,2], marker='^', c='green', s=.1, label='RBSP-B')
-    
-    for i in range(len(coords[:,0])):
-        if i % 10000 ==0 and i-len(coords[:,0]) < 200:
-            diffX = coords[i+1, 0] - coords[i,0]
-            diffY = coords[i+1, 2] - coords[i,2]
-            ax2.arrow(coords[i,0], coords[i,2], diffX, diffY, shape='full', 
-                      lw=0, length_includes_head=True, head_width=.2, 
-                      color='darkgreen')
+#    magDict = rip.get_CDF_Dict('Mag_1Sec_B', strtDt, endDt)
+#    coords = magDict['coordinates']/6371.5
+#    
+#    ws = 6
+#    ax1.set_xlim(ws,-ws)
+#    ax1.set_ylim(ws,-ws)
+#    ax1.scatter(coords[:,0], coords[:,1], marker='^', c='green', s=.1, label='RBSP-B')
+#    
+#    for i in range(len(coords[:,0])):
+#        if i % 10000 ==0 and i-len(coords[:,0]) < 200:
+#            diffX = coords[i+1, 0] - coords[i,0]
+#            diffY = coords[i+1, 1] - coords[i,1]
+#            ax1.arrow(coords[i,0], coords[i,1], diffX, diffY, shape='full', 
+#                      lw=0, length_includes_head=True, head_width=.2, 
+#                      color='darkgreen')
+#    
+#    ax2.set_xlim(ws,-ws)
+#    ax2.set_ylim(-ws,ws)
+#    ax2.scatter(coords[:,0], coords[:,2], marker='^', c='green', s=.1, label='RBSP-B')
+#    
+#    for i in range(len(coords[:,0])):
+#        if i % 10000 ==0 and i-len(coords[:,0]) < 200:
+#            diffX = coords[i+1, 0] - coords[i,0]
+#            diffY = coords[i+1, 2] - coords[i,2]
+#            ax2.arrow(coords[i,0], coords[i,2], diffX, diffY, shape='full', 
+#                      lw=0, length_includes_head=True, head_width=.2, 
+#                      color='darkgreen')
     
     ax1.minorticks_on()
     ax1.legend(markerscale=20)
@@ -251,7 +251,7 @@ def hpf(data, fmin=.01, T=1, init=0):
 
 def lpf(data, fmax=.005, T=1, initial=0):
     '''
-    A simple high pass filter function.
+    A simple low pass filter function.
         data = the numpy array containing the data to filter
         fmax = upper cutoff frequency
         T = sample period

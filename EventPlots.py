@@ -17,15 +17,16 @@ import EventPlotFunctions as eve
 Code section which retrieves a dictionary from the mySQL database on Dgar at NJIT
 '''
 diff = 240
-date = dt.datetime(2013,5,1,21,0,0)
+SC = 'B'
+date = dt.datetime(2013,5,1,8,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 #=======================================================================================================================
-magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
-tofDict = rip.get_CDF_Dict('TOFxEH_A', strtDate, stpDate)
+magDict = rip.get_CDF_Dict('Mag_1Sec_' + SC, strtDate, stpDate)
+tofDict = rip.get_CDF_Dict('TOFxEH_' + SC, strtDate, stpDate)
 tofDict['FPDU'][np.where(tofDict['FPDU']<0)] = 0
-betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
-kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
+betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_' + SC, strtDate, stpDate)
+kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_' + SC, strtDate, stpDate)
 
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=False, figsize=(17,12), dpi=166) 
 ax2T = ax2.twinx()

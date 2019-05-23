@@ -19,14 +19,15 @@ from scipy.signal import blackmanharris
 import numpy as np
 
 diff = 240
-date = dt.datetime(2013,5,1,21,00,0)
+SC = 'A'
+date = dt.datetime(2013,5,1,12,0,0)
 strtDate = date - dt.timedelta(minutes=diff)
 stpDate = date + dt.timedelta(minutes=diff) 
 
-magDict = rip.get_CDF_Dict('Mag_1Sec_A', strtDate, stpDate)
-betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_A', strtDate, stpDate)
-kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_A', strtDate, stpDate)
-pressDict = dbFun.get_Pressure_Total_For_Span('TOFxEH_A', strtDate, stpDate)
+magDict = rip.get_CDF_Dict('Mag_1Sec_' + SC, strtDate, stpDate)
+betaDict = dbFun.get_Beta_Total_For_Span('TOFxEH_' + SC, strtDate, stpDate)
+kappaDict = dbFun.get_Kappa_For_Span('TOFxEH_' + SC, strtDate, stpDate)
+pressDict = dbFun.get_Pressure_Total_For_Span('TOFxEH_' + SC, strtDate, stpDate)
 
 eve.FAUV_ToMagDict(magDict)
 eve.get_field_Aligned_Mag(magDict)
@@ -47,7 +48,7 @@ ax2 = plt.subplot(gs[1:2, 0:1])
 ax3 = plt.subplot(gs[0:1, 1:])
 ax4 = plt.subplot(gs[1:2, 1:])
 
-eve.get_Position_Plot_For_Span(ax1, ax2, strtDate, stpDate)
+eve.get_Position_Plot_For_Span(ax1, ax2, strtDate, stpDate, magDict, SC)
 epBin1 = np.linspace(0,1, len(magDict['Epoch_Avg']))
 epBin2 = np.linspace(0,1, len(pressDict['Epoch'][27:len(pressDict['Epoch'])-27]))
 ax3.plot(epBin1, magDict['MagPressFA_NoBack'][:,0], color = 'red', label='FA Mag. Press.')
@@ -61,7 +62,7 @@ ax3.legend()
 epBin2 = np.linspace(0,1, len(betaDict['Epoch']))
 ax4.plot(epBin2, betaDict['Total'], color='green', label='Beta')
 ax4.plot(epBin2, kappaDict['Kappa'], color='blue', label='Kappa') 
-ax4.set_ylim(-2,3)
+ax4.set_ylim(-2,4)
 ax4.legend()
 
 gs.update(hspace=.25, wspace=.15)
