@@ -8,8 +8,6 @@ Created on Sun Apr  8 13:08:18 2018
 import numpy as np
 import matplotlib.pyplot as plt
 import datetime as dt
-import cdfstuff.ripper_V2 as rip
-import dbstuff.databaseFunctions as dbFun
 from scipy.signal import blackmanharris
 import EventPlotFunctions as eve
 '''
